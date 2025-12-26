@@ -119,10 +119,17 @@ Export decisions as self-contained, verifiable bundles:
 bundle = pn.export()
 bundle.to_file("audit.json")
 
-# Anyone can verify later
+# Save public key for third-party verification
+public_key = pn.identity.keys.public_key
+with open("public_key.bin", "wb") as f:
+    f.write(public_key)
+
+# Third parties can verify later
 from proofnest import ProofBundle
 loaded = ProofBundle.from_file("audit.json")
-assert loaded.verify()
+with open("public_key.bin", "rb") as f:
+    public_key = f.read()
+assert loaded.verify(public_key)
 ```
 
 ## CLI
@@ -140,20 +147,21 @@ proofnest verify audit.json --verbose
 
 ## Third-Party Verification
 
-Auditors can verify proofs without any Stellanium dependency:
+Auditors can verify proofs with the agent's public key:
 
 ```python
 from proofnest import ProofBundle, verify_proofbundle_standalone
 
-# Load the proof bundle
+# Load the proof bundle and public key
 bundle = ProofBundle.from_file("audit_trail.json")
+with open("public_key.bin", "rb") as f:
+    public_key = f.read()
 
 # Verify signature (post-quantum Dilithium)
-assert bundle.verify()
+assert bundle.verify(public_key)
 
-# Or verify with raw JSON and public key
+# Or verify with raw JSON
 json_str = open("audit_trail.json").read()
-public_key = bytes.fromhex("...")  # Agent's public key
 is_valid = verify_proofbundle_standalone(json_str, public_key)
 ```
 
@@ -252,7 +260,7 @@ pn.get_merkle_root() -> str     # Single hash of entire chain
 ProofBundle.decision(content, private_key, public_key) -> ProofBundle
 ProofBundle.from_file(path) -> ProofBundle
 bundle.to_file(path)
-bundle.verify() -> bool
+bundle.verify(public_key: bytes) -> bool
 bundle.to_json() -> str
 ```
 
