@@ -912,6 +912,16 @@ class ProofNest:
         if verify_signatures:
             for record in self.chain:
                 if record.signature:
+                    # P0 SECURITY FIX: Verify signer DID matches agent identity
+                    # This prevents object replacement attacks where an attacker
+                    # replaces records with validly-signed records from a different agent
+                    if self._identity and record.signature.signer_did != self.did:
+                        print(
+                            f"WARNING: Signer DID mismatch on record {record.decision_id}! "
+                            f"Expected {self.did}, got {record.signature.signer_did}"
+                        )
+                        return False
+
                     # Reconstruct the decision data that was signed
                     decision_data = {
                         "decision_id": record.decision_id,

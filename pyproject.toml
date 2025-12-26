@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "proofnest"
-version = "1.2.3"
+version = "1.2.4"
 description = "Proof, not promises. Quantum-ready trust infrastructure for AI agents."
 readme = "README.md"
 license = {text = "Apache-2.0"}
