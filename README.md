@@ -264,32 +264,38 @@ bundle.verify(public_key: bytes) -> bool
 bundle.to_json() -> str
 ```
 
-## Git Commit Anchoring
+## Release Anchoring
 
-Anchor every git commit to Bitcoin for immutable proof of when code existed:
+Anchor releases to Bitcoin for immutable proof of when versions existed:
 
 ```bash
 #!/bin/bash
-# .git/hooks/post-commit
-# Anchors commits to Bitcoin via OpenTimestamps (FREE)
+# .git/hooks/pre-push - Anchors release tags to Bitcoin
 
-COMMIT=$(git rev-parse HEAD)
-DIGEST=$(echo -n "$COMMIT" | xxd -r -p)
+REPO=$(basename "$(git rev-parse --show-toplevel)")
+mkdir -p .git/ots
 
-PROOF=$(curl -s --max-time 10 -X POST \
-    -H "Content-Type: application/octet-stream" \
-    --data-binary "$DIGEST" \
-    "https://a.pool.opentimestamps.org/digest")
+for TAG in $(git tag -l 'v*'); do
+    [ -f ".git/ots/${TAG}.ots" ] && continue
 
-if [ -n "$PROOF" ]; then
-    mkdir -p .git/ots
-    echo -n "$PROOF" > ".git/ots/${COMMIT:0:12}.ots"
-    echo "✅ Commit anchored to Bitcoin: $COMMIT"
-fi
+    COMMIT=$(git rev-list -n 1 "$TAG")
+    HASH=$(echo -n "${TAG}:${COMMIT}:${REPO}" | sha256sum | cut -d' ' -f1)
+    DIGEST=$(echo -n "$HASH" | xxd -r -p)
+
+    PROOF=$(curl -s --max-time 10 -X POST \
+        -H "Content-Type: application/octet-stream" \
+        --data-binary "$DIGEST" \
+        "https://a.pool.opentimestamps.org/digest")
+
+    if [ -n "$PROOF" ] && [ ${#PROOF} -gt 50 ]; then
+        echo -n "$PROOF" > ".git/ots/${TAG}.ots"
+        echo "⚓ PROOFNEST: $TAG anchored to Bitcoin"
+    fi
+done
 ```
 
-**Why anchor commits?**
-- Proves code existed at specific time
+**Why anchor releases?**
+- Proves version existed at specific time
 - Immutable evidence for IP disputes
 - Audit trail for regulated industries
 - FREE via OpenTimestamps (~2h to confirm on Bitcoin)
