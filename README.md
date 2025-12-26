@@ -264,6 +264,36 @@ bundle.verify(public_key: bytes) -> bool
 bundle.to_json() -> str
 ```
 
+## Git Commit Anchoring
+
+Anchor every git commit to Bitcoin for immutable proof of when code existed:
+
+```bash
+#!/bin/bash
+# .git/hooks/post-commit
+# Anchors commits to Bitcoin via OpenTimestamps (FREE)
+
+COMMIT=$(git rev-parse HEAD)
+DIGEST=$(echo -n "$COMMIT" | xxd -r -p)
+
+PROOF=$(curl -s --max-time 10 -X POST \
+    -H "Content-Type: application/octet-stream" \
+    --data-binary "$DIGEST" \
+    "https://a.pool.opentimestamps.org/digest")
+
+if [ -n "$PROOF" ]; then
+    mkdir -p .git/ots
+    echo -n "$PROOF" > ".git/ots/${COMMIT:0:12}.ots"
+    echo "✅ Commit anchored to Bitcoin: $COMMIT"
+fi
+```
+
+**Why anchor commits?**
+- Proves code existed at specific time
+- Immutable evidence for IP disputes
+- Audit trail for regulated industries
+- FREE via OpenTimestamps (~2h to confirm on Bitcoin)
+
 ## Documentation
 
 - [GitHub Repository](https://github.com/proofnest/proofnest)

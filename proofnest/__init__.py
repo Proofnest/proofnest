@@ -43,7 +43,7 @@ Copyright (c) 2025 Stellanium Ltd. All rights reserved.
 Licensed under Apache License 2.0. See LICENSE file.
 """
 
-__version__ = "1.2.4"
+__version__ = "1.2.5"
 __author__ = "Stellanium Ltd"
 __email__ = "admin@stellanium.io"
 __license__ = "Apache-2.0"
