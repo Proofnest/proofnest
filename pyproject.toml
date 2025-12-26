@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "proofnest"
+version = "1.2.2"
+description = "Proof, not promises. Quantum-ready trust infrastructure for AI agents."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Stellanium Ltd", email = "admin@stellanium.io"},
+]
+maintainers = [
+    {name = "Stellanium Ltd", email = "admin@stellanium.io"},
+]
+keywords = [
+    "ai",
+    "agents",
+    "audit",
+    "accountability",
+    "bitcoin",
+    "cryptography",
+    "decision-logging",
+    "post-quantum",
+    "proof",
+    "transparency",
+    "trust",
+    "verification",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "packaging>=21.0",
+    "pynacl>=1.5.0",
+    "dilithium-py==1.4.0",
+    "pycryptodome>=3.19.0",
+    "jsonschema>=4.17.0",
+]
+
+[project.optional-dependencies]
+bitcoin = ["bitcoinlib>=0.6.0"]
+ed25519 = ["cryptography>=41.0.0"]
+full = [
+    "bitcoinlib>=0.6.0",
+    "cryptography>=41.0.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "cryptography>=41.0.0",
+]
+
+[project.scripts]
+proofnest = "proofnest.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/proofnest/proofnest"
+Documentation = "https://github.com/proofnest/proofnest#readme"
+Repository = "https://github.com/proofnest/proofnest.git"
+Issues = "https://github.com/proofnest/proofnest/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["proofnest"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/proofnest",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
